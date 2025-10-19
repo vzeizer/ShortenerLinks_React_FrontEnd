@@ -74,11 +74,11 @@ export function Home() {
     }
   }
 
-  async function handleDeleteLink(id: string) {
+  async function handleDeleteLink(code: string) {
     // Define qual link está sendo deletado para mostrar o spinner correto
-    setDeletingId(id) 
+    setDeletingId(code) 
     try {
-      await deleteLinkFn(id)
+      await deleteLinkFn(code)
       alert('Link excluído com sucesso!')
     } catch (error) {
       console.error('Erro ao excluir o link:', error)
@@ -156,7 +156,7 @@ export function Home() {
                       <td className="whitespace-nowrap px-6 py-4">
                         {/* --- ATUALIZADO: Botão de Excluir com Spinner --- */}
                         <button
-                          onClick={() => handleDeleteLink(link.id)}
+                          onClick={() => handleDeleteLink(link.code)}
                           className="text-red-500 hover:text-red-700 disabled:opacity-50 w-16 flex justify-center"
                           disabled={isDeletingLink && deletingId === link.id}
                         >
