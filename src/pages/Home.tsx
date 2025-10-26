@@ -1,38 +1,15 @@
 import { FormEvent, useState } from 'react'
-import { createShortLink, getLinks, deleteLink } from '../services/apiService'
+import { createShortLink, getLinks, deleteLink, incrementVisitCount } from '../services/apiService'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-
-// Um componente simples de Spinner para reutilizarmos
-function Spinner() {
-  return (
-    <svg
-      className="animate-spin h-5 w-5 text-white"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      ></circle>
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-      ></path>
-    </svg>
-  )
-}
+import { Button } from '../components/Button'
+import { Input } from '../components/Input'
+import { IconButton } from '../components/IconButton'
+import { Link, Trash2, Copy } from 'lucide-react'
 
 export function Home() {
   const [url, setUrl] = useState('')
+  const [customName, setCustomName] = useState('')
   const queryClient = useQueryClient()
-  
-  // --- NOVO: Estado para controlar qual link está sendo deletado ---
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const { data: links, isLoading, isError } = useQuery({
@@ -40,24 +17,21 @@ export function Home() {
     queryFn: getLinks,
   })
 
-  // --- ATUALIZADO: useMutation para CRIAR link ---
   const { mutateAsync: createLinkFn, isPending: isCreatingLink } = useMutation({
-    mutationFn: createShortLink,
+    mutationFn: ({ url, name }: { url: string; name?: string }) => createShortLink(url, name),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['links'] })
     },
   })
 
-  // --- ATUALIZADO: useMutation para DELETAR link ---
   const { mutateAsync: deleteLinkFn, isPending: isDeletingLink } = useMutation({
     mutationFn: deleteLink,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['links'] })
     },
-    // Limpa o estado de `deletingId` quando a mutação terminar
     onSettled: () => {
       setDeletingId(null)
-    }
+    },
   })
 
   async function handleCreateShortLink(event: FormEvent) {
@@ -65,28 +39,32 @@ export function Home() {
     if (!url.trim()) return
 
     try {
-      const newLink = await createLinkFn(url)
-      alert(`Link criado: ${import.meta.env.VITE_FRONTEND_URL}/${newLink.code}`)
+      const newLink = await createLinkFn({ 
+        url: url.trim(), 
+        name: customName.trim() || undefined 
+      })
+      // Use custom_name if available, otherwise use code
+      const displayName = newLink.custom_name || newLink.code
+      alert(`Link criado: brev.ly/${displayName}`)
       setUrl('')
+      setCustomName('')
     } catch (error) {
       console.error('Erro ao criar o link:', error)
       alert('Não foi possível criar o link.')
     }
   }
 
-  async function handleDeleteLink(code: string) {
-    // Define qual link está sendo deletado para mostrar o spinner correto
-    setDeletingId(code) 
+  async function handleDeleteLink(id: string) {
+    setDeletingId(id)
     try {
-      await deleteLinkFn(code)
+      await deleteLinkFn(id)
       alert('Link excluído com sucesso!')
     } catch (error) {
       console.error('Erro ao excluir o link:', error)
       alert('Não foi possível excluir o link.')
     }
   }
-  
-  // --- NOVO: Função para copiar para a área de transferência ---
+
   async function handleCopyToClipboard(text: string) {
     try {
       await navigator.clipboard.writeText(text)
@@ -97,79 +75,196 @@ export function Home() {
     }
   }
 
+  // OPTION 1: Go through redirect system (recommended)
+  function handleLinkClickWithRedirect(displayName: string) {
+    // This will go through your redirect system and increment the counter
+    const redirectUrl = `${import.meta.env.VITE_FRONTEND_URL}/${displayName}`
+    window.open(redirectUrl, '_blank', 'noopener,noreferrer')
+  }
+
+  // OPTION 2: Direct link with manual counter increment
+  async function handleLinkClickDirect(originalUrl: string, displayName: string) {
+    try {
+      // Increment counter manually
+      await incrementVisitCount(displayName)
+      
+      // Refresh the links to show updated count
+      queryClient.invalidateQueries({ queryKey: ['links'] })
+      
+      // Add protocol if missing
+      let urlToOpen = originalUrl
+      if (!urlToOpen.startsWith('http://') && !urlToOpen.startsWith('https://')) {
+        urlToOpen = 'https://' + urlToOpen
+      }
+      
+      // Open original URL directly
+      window.open(urlToOpen, '_blank', 'noopener,noreferrer')
+    } catch (error) {
+      console.error('Error incrementing visit count:', error)
+      // Still open the link even if counter increment fails
+      let urlToOpen = originalUrl
+      if (!urlToOpen.startsWith('http://') && !urlToOpen.startsWith('https://')) {
+        urlToOpen = 'https://' + urlToOpen
+      }
+      window.open(urlToOpen, '_blank', 'noopener,noreferrer')
+    }
+  }
+
+  // Debug: Log the links data to see what's being returned
+  console.log('Links data:', links)
+
+  // Determine if we should show the side-by-side layout
+  const hasLinksToShow = links && links.length > 0
+
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-900 text-white p-4">
-      <div className="w-full max-w-4xl mx-auto">
-        <header className="text-center my-10">
-          <h1 className="text-5xl font-bold text-cyan-400">Brev.ly</h1>
+    <div className="flex flex-col items-center min-h-screen bg-gray-100 text-gray-600 p-4 md:p-8">
+      <div className="w-full max-w-7xl mx-auto">
+        <header className="text-center my-10 md:my-16">
+          <h1 className="text-xl font-bold text-gray-600 flex items-center justify-center gap-2">
+            <span className="text-brand-base">@</span>brev.ly
+          </h1>
         </header>
 
-        <form onSubmit={handleCreateShortLink} className="w-full max-w-lg mx-auto">
-          <div className="flex items-center border-b-2 border-cyan-400 py-2">
-            <input
-              className="appearance-none bg-transparent border-none w-full mr-3 py-1 px-2 leading-tight focus:outline-none"
-              type="url"
-              placeholder="Digite a URL para encurtar"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-            />
-            {/* --- ATUALIZADO: Botão de Encurtar com Spinner --- */}
-            <button
-              className="flex-shrink-0 bg-cyan-500 hover:bg-cyan-700 border-cyan-500 hover:border-cyan-700 text-sm border-4 text-white py-1 px-2 rounded transition-colors disabled:opacity-50 w-32 flex items-center justify-center"
-              type="submit"
-              disabled={isCreatingLink}
-            >
-              {isCreatingLink ? <Spinner /> : 'Encurtar Link'}
-            </button>
+        {/* Main content - conditional layout */}
+        <div className={hasLinksToShow ? "flex flex-col lg:flex-row gap-8" : "flex justify-center"}>
+          {/* Form section */}
+          <div className={hasLinksToShow ? "lg:w-1/3 flex-shrink-0" : "w-full max-w-md"}>
+            <div className="bg-white p-6 md:p-8 rounded-lg shadow-md">
+              <form
+                onSubmit={handleCreateShortLink}
+                className="flex flex-col gap-4"
+              >
+                <Input
+                  label="URL Original"
+                  name="url"
+                  type="url"
+                  placeholder="Digite a URL para encurtar"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  required
+                />
+                <Input
+                  label="Nome Personalizado (opcional)"
+                  name="customName"
+                  type="text"
+                  placeholder="Digite um nome personalizado"
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                />
+                <Button
+                  type="submit"
+                  isLoading={isCreatingLink}
+                  className="w-full text-md font-semibold"
+                >
+                  <Link className="w-4 h-4" />
+                  Encurtar Link
+                </Button>
+              </form>
+            </div>
           </div>
-        </form>
 
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold mb-4">Links Cadastrados</h2>
-          {isLoading && <p>Carregando links...</p>}
-          {isError && <p>Ocorreu um erro ao buscar os links.</p>}
-          
-          {links && (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-left text-sm font-light">
-                <thead className="border-b font-medium dark:border-neutral-500">
-                  <tr>
-                    <th scope="col" className="px-6 py-4">Link Encurtado</th>
-                    <th scope="col" className="px-6 py-4">URL Original</th>
-                    <th scope="col" className="px-6 py-4">Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {links.map((link) => (
-                    <tr key={link.id} className="border-b dark:border-neutral-500">
-                      {/* --- ATUALIZADO: Célula clicável para copiar --- */}
-                      <td 
-                        className="whitespace-nowrap px-6 py-4 font-medium text-cyan-400 hover:text-cyan-300 cursor-pointer"
-                        onClick={() => handleCopyToClipboard(`${import.meta.env.VITE_FRONTEND_URL}/${link.code}`)}
-                        title="Clique para copiar"
-                      >
-                        {`${import.meta.env.VITE_FRONTEND_URL}/${link.code}`}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 truncate max-w-xs">
-                        {link.original_url}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4">
-                        {/* --- ATUALIZADO: Botão de Excluir com Spinner --- */}
-                        <button
-                          onClick={() => handleDeleteLink(link.code)}
-                          className="text-red-500 hover:text-red-700 disabled:opacity-50 w-16 flex justify-center"
-                          disabled={isDeletingLink && deletingId === link.id}
-                        >
-                          {isDeletingLink && deletingId === link.id ? <Spinner /> : 'Excluir'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {/* Table section - only show when there are links */}
+          {hasLinksToShow && (
+            <div className="lg:w-2/3 flex-1">
+              <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                {/* Scrollable container with max height */}
+                <div className="max-h-96 overflow-y-auto">
+                  <table className="min-w-full text-left">
+                    <thead className="bg-gray-50 sticky top-0">
+                      <tr>
+                        <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Link Encurtado
+                        </th>
+                        <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          URL Original
+                        </th>
+                        <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Visitas
+                        </th>
+                        <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Ações
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {links.map((link) => {
+                        // Use custom_name if available, otherwise use code
+                        const displayName = link.custom_name || link.code
+                        const shortUrl = `brev.ly/${displayName}` // For display only
+                        const workingUrl = `${import.meta.env.VITE_FRONTEND_URL}/${displayName}` // Actual working URL
+                        
+                        return (
+                          <tr key={link.id}>
+                            <td className="px-4 py-4 text-sm font-semibold text-brand-base">
+                              <button
+                                onClick={() => handleLinkClickDirect(link.original_url, displayName)}
+                                className="max-w-xs truncate hover:underline cursor-pointer text-left transition-colors hover:text-brand-dark"
+                                title={`Clique para abrir: ${link.original_url} (contador será incrementado)`}
+                              >
+                                {shortUrl}
+                              </button>
+                            </td>
+                            <td className="px-4 py-4 text-sm font-semibold text-gray-600">
+                              <div className="max-w-xs truncate" title={link.original_url}>
+                                {link.original_url || 'URL não disponível'}
+                              </div>
+                            </td>
+                            <td className="px-4 py-4 text-sm font-semibold text-gray-600">
+                              {link.access_count || 0}
+                            </td>
+                            <td className="px-4 py-4">
+                              <div className="flex items-center gap-2">
+                                <IconButton
+                                  onClick={() => handleCopyToClipboard(workingUrl)}
+                                  title="Copiar link"
+                                >
+                                  <Copy className="w-4 h-4" />
+                                </IconButton>
+                                <IconButton
+                                  variant="danger"
+                                  onClick={() => handleDeleteLink(link.code)}
+                                  isLoading={deletingId === link.code && isDeletingLink}
+                                  title="Excluir link"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </IconButton>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
         </div>
+
+        {/* Loading and error states - shown below the form when no links */}
+        {!hasLinksToShow && (
+          <div className="mt-8 flex justify-center">
+            <div className="w-full max-w-md">
+              {isLoading && (
+                <div className="bg-white rounded-lg shadow-md p-8 text-center">
+                  <p>Carregando links...</p>
+                </div>
+              )}
+              
+              {isError && (
+                <div className="bg-white rounded-lg shadow-md p-8 text-center">
+                  <p className="text-danger">Ocorreu um erro ao buscar os links.</p>
+                </div>
+              )}
+              
+              {links?.length === 0 && !isLoading && (
+                <div className="bg-white rounded-lg shadow-md p-10 text-center text-gray-400">
+                  <p className="text-md font-semibold">Nenhum link encurtado ainda. Comece a criar o seu!</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
