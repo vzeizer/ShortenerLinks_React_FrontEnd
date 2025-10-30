@@ -165,10 +165,11 @@ export function Home() {
 
           {/* Table section - only show when there are links */}
           {hasLinksToShow && (
+            // ...existing code...
             <div className="lg:w-2/3 flex-1">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 {/* Scrollable container with max height */}
-                <div className="max-h-96 overflow-y-auto">
+                <div className="max-h-96 overflow-y-auto custom-scrollbar">
                   <table className="min-w-full text-left">
                     <thead className="bg-gray-50 sticky top-0">
                       <tr>
