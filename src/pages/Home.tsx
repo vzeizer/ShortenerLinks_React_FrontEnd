@@ -139,7 +139,7 @@ export function Home() {
                   label="Link Original"
                   name="url"
                   type="url"
-                  placeholder="Digite a URL para encurtar"
+                  placeholder="https://www.exemplo.com.br"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   required
@@ -148,9 +148,10 @@ export function Home() {
                   label="Link encurtado"
                   name="customName"
                   type="text"
-                  placeholder="Digite um nome personalizado"
+                  placeholder="brev.ly/"
                   value={customName}
                   onChange={(e) => setCustomName(e.target.value)}
+                  required
                 />
                 <Button
                   type="submit"
