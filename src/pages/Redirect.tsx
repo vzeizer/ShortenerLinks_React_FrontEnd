@@ -21,22 +21,28 @@ export function RedirectPage() {
           // Increment visit counter first
           await incrementVisitCount(shortUrl)
           
-          // Add protocol if missing
-          let urlToRedirect = data.original_url
-          if (!urlToRedirect.startsWith('http://') && !urlToRedirect.startsWith('https://')) {
-            urlToRedirect = 'https://' + urlToRedirect
-          }
+          // Add a small delay to show the redirect page (1.5 seconds)
+          setTimeout(() => {
+            // Add protocol if missing
+            let urlToRedirect = data.original_url
+            if (!urlToRedirect.startsWith('http://') && !urlToRedirect.startsWith('https://')) {
+              urlToRedirect = 'https://' + urlToRedirect
+            }
+            
+            // Redirect to the original URL
+            window.location.href = urlToRedirect
+          }, 1500)
           
-          // Redirect to the original URL
-          window.location.href = urlToRedirect
         } catch (error) {
           console.error('Error incrementing visit count:', error)
-          // Still redirect even if counter increment fails
-          let urlToRedirect = data.original_url
-          if (!urlToRedirect.startsWith('http://') && !urlToRedirect.startsWith('https://')) {
-            urlToRedirect = 'https://' + urlToRedirect
-          }
-          window.location.href = urlToRedirect
+          // Still redirect even if counter increment fails, but with delay
+          setTimeout(() => {
+            let urlToRedirect = data.original_url
+            if (!urlToRedirect.startsWith('http://') && !urlToRedirect.startsWith('https://')) {
+              urlToRedirect = 'https://' + urlToRedirect
+            }
+            window.location.href = urlToRedirect
+          }, 1500)
         }
       }
     }
@@ -50,7 +56,8 @@ export function RedirectPage() {
     }
   }, [isError, navigate])
 
-  if (isLoading) {
+  // Show loading state while fetching data OR while waiting for redirect
+  if (isLoading || data) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
         {/* Desktop image - hidden on mobile */}
