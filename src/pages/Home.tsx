@@ -199,9 +199,9 @@ export function Home() {
                           <tr key={link.id}>
                             <td className="px-4 py-4 text-sm font-semibold text-brand-base">
                               <button
-                                onClick={() => handleLinkClickDirect(link.original_url, displayName)}
+                                onClick={() => handleLinkClickWithRedirect(displayName)}
                                 className="max-w-xs truncate hover:underline cursor-pointer text-left transition-colors hover:text-brand-dark"
-                                title={`Clique para abrir: ${link.original_url} (contador será incrementado)`}
+                                title={`Clique para abrir: ${link.original_url} (será redirecionado)`}
                               >
                                 {shortUrl}
                               </button>
