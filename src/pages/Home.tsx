@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '../components/Button'
 import { Input } from '../components/Input'
 import { IconButton } from '../components/IconButton'
-import { Link, Trash2, Copy } from 'lucide-react'
+import { Link } from 'lucide-react'
 
 export function Home() {
   const [url, setUrl] = useState('')
@@ -116,6 +116,7 @@ export function Home() {
   // Determine if we should show the side-by-side layout
   const hasLinksToShow = links && links.length > 0
 
+
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 text-gray-600 p-4 md:p-8">
       <div className="w-full max-w-7xl mx-auto">
@@ -165,7 +166,6 @@ export function Home() {
 
           {/* Table section - only show when there are links */}
           {hasLinksToShow && (
-            // ...existing code...
             <div className="lg:w-2/3 flex-1">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 {/* Scrollable container with max height */}
@@ -219,7 +219,7 @@ export function Home() {
                                   onClick={() => handleCopyToClipboard(workingUrl)}
                                   title="Copiar link"
                                 >
-                                  <Copy className="w-4 h-4" />
+                                  <img src="/copy-simple.svg" alt="Copy" className="w-4 h-4" />
                                 </IconButton>
                                 <IconButton
                                   variant="danger"
@@ -227,7 +227,7 @@ export function Home() {
                                   isLoading={deletingId === link.code && isDeletingLink}
                                   title="Excluir link"
                                 >
-                                  <Trash2 className="w-4 h-4" />
+                                  <img src="/trash.svg" alt="Delete" className="w-4 h-4" />
                                 </IconButton>
                               </div>
                             </td>
