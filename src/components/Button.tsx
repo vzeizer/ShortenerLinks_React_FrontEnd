@@ -6,9 +6,9 @@ const buttonVariants = tv({
   base: 'py-2 px-4 rounded-md font-bold transition-all flex items-center justify-center gap-2',
   variants: {
     variant: {
-      primary: 'bg-brand text-white hover:bg-brand/90',
-      secondary: 'bg-brand/10 text-brand hover:bg-brand/20',
-      tertiary: 'bg-transparent text-brand hover:bg-brand/10',
+      primary: 'bg-brand-base text-white hover:bg-brand-dark', // Fixed to use brand-base
+      secondary: 'bg-brand-base/10 text-brand-base hover:bg-brand-base/20', // Fixed to use brand-base
+      tertiary: 'bg-transparent text-brand-base hover:bg-brand-base/10', // Fixed to use brand-base
     },
     disabled: {
       true: '',
