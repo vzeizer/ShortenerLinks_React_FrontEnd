@@ -122,7 +122,8 @@ export function Home() {
       <div className="w-full max-w-7xl mx-auto">
         <header className="text-center my-10 md:my-16">
           <h1 className="text-xl font-bold text-gray-600 flex items-center justify-center gap-2">
-            <img src="/link.svg" alt="Link" className="w-6 h-6" />brev.ly
+            <img src="/link.svg" alt="Link" className="w-6 h-6" />
+            <span className="text-brand-base">brev.ly</span>
           </h1>
         </header>
         {/* Main content - conditional layout */}
@@ -135,7 +136,7 @@ export function Home() {
                 className="flex flex-col gap-4"
               >
                 <Input
-                  label="URL Original"
+                  label="Link Original"
                   name="url"
                   type="url"
                   placeholder="Digite a URL para encurtar"
@@ -144,7 +145,7 @@ export function Home() {
                   required
                 />
                 <Input
-                  label="Nome Personalizado (opcional)"
+                  label="Link encurtado"
                   name="customName"
                   type="text"
                   placeholder="Digite um nome personalizado"
@@ -157,7 +158,7 @@ export function Home() {
                   className="w-full text-md font-semibold"
                 >
                   <Link className="w-4 h-4" />
-                  Encurtar Link
+                  Salvar
                 </Button>
               </form>
             </div>
