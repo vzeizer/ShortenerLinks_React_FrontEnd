@@ -122,10 +122,9 @@ export function Home() {
       <div className="w-full max-w-7xl mx-auto">
         <header className="text-center my-10 md:my-16">
           <h1 className="text-xl font-bold text-gray-600 flex items-center justify-center gap-2">
-            <span className="text-brand-base">@</span>brev.ly
+            <img src="/link.svg" alt="Link" className="w-6 h-6" />brev.ly
           </h1>
         </header>
-
         {/* Main content - conditional layout */}
         <div className={hasLinksToShow ? "flex flex-col lg:flex-row gap-8" : "flex justify-center"}>
           {/* Form section */}
