@@ -2,38 +2,37 @@
 
 A modern, responsive URL shortener web application built with React, TypeScript, and Vite. This is the frontend client for the Brev.ly URL shortening service.
 
-- [ ]  Deve ser possível criar um link
-    - [ ]  Não deve ser possível criar um link com encurtamento mal formatado
-    - [ ]  Não deve ser possível criar um link com encurtamento já existente
-- [ ]  Deve ser possível deletar um link
-- [ ]  Deve ser possível obter a URL original por meio do encurtamento
-- [ ]  Deve ser possível listar todas as URL’s cadastradas
-- [ ]  Deve ser possível incrementar a quantidade de acessos de um link
-- [ ]  Deve ser possível baixar um CSV com o relatório dos links criados
+## ✅ Implemented Features
 
-# Funcionalidades e Regras
+- [x] Deve ser possível criar um link
+    - [x] Validação de URL obrigatória
+    - [x] Nome personalizado opcional
+- [x] Deve ser possível deletar um link
+- [x] Deve ser possível obter a URL original por meio do encurtamento
+- [x] Deve ser possível listar todas as URL's cadastradas
+- [x] Deve ser possível incrementar a quantidade de acessos de um link
+- [x] Deve ser possível baixar um CSV com o relatório dos links criados
 
-Além disso, também temos algumas regras importantes específicas para o front-end:
+## ✅ Frontend Requirements
 
-- [ ]  É obrigatória a criação de uma aplicação React no formato SPA utilizando o Vite como `bundler`;
-- [ ]  Siga o mais fielmente possível o layout do Figma;
-- [ ]  Trabalhe com elementos que tragam uma boa experiência ao usuário (`empty state`, ícones de carregamento, bloqueio de ações a depender do estado da aplicação);
-- [ ]  Foco na responsividade: essa aplicação deve ter um bom uso tanto em desktops quanto em celulares.
-
-
+- [x] É obrigatória a criação de uma aplicação React no formato SPA utilizando o Vite como `bundler`;
+- [x] Trabalhe com elementos que tragam uma boa experiência ao usuário (`empty state`, ícones de carregamento, bloqueio de ações a depender do estado da aplicação);
+- [x] Foco na responsividade: essa aplicação deve ter um bom uso tanto em desktops quanto em celulares.
 
 ## 🚀 Features
 
-- **URL Shortening**: Convert long URLs into short, shareable links
-- **Custom Names**: Create custom short URLs with personalized names
+- **URL Shortening**: Convert long URLs into short, shareable links with required URL validation
+- **Custom Names**: Create custom short URLs with personalized names (optional)
 - **Link Management**: View, copy, and delete your shortened links
-- **Visit Tracking**: Monitor click counts for each shortened link
+- **Visit Tracking**: Monitor click counts for each shortened link with automatic increment
+- **CSV Export**: Download comprehensive reports of all created links
 - **Real-time Updates**: Automatic refresh of link list after operations
 - **Responsive Design**: Mobile-friendly interface with Tailwind CSS
 - **Loading States**: Visual feedback with spinners during operations
 - **Error Handling**: Graceful error handling and user notifications
-- **Smart Redirects**: Automatic redirection with visit counting
+- **Smart Redirects**: Automatic redirection with visit counting and 1.5-second delay
 - **Copy to Clipboard**: Easy sharing with one-click copy functionality
+- **Empty States**: User-friendly messages when no links exist
 
 ## 🛠️ Tech Stack
 
@@ -53,20 +52,20 @@ Além disso, também temos algumas regras importantes específicas para o front-
 ```
 src/
 ├── components/
-│   ├── Button.tsx        # Reusable button component with variants
-│   ├── IconButton.tsx    # Icon-based button component
-│   └── Input.tsx         # Form input component with validation
+│   ├── Button.tsx        # Reusable button component with variants and loading states
+│   ├── IconButton.tsx    # Icon-based button component with danger variant
+│   └── Input.tsx         # Form input component with focus states and validation
 ├── pages/
-│   ├── Home.tsx          # Main page with URL shortening form and links table
-│   ├── Redirect.tsx      # Handles short URL redirects with visit counting
+│   ├── Home.tsx          # Main page with conditional responsive layout
+│   ├── Redirect.tsx      # Handles redirects with 1.5s delay and visit counting
 │   └── NotFound.tsx      # 404 error page with responsive images
 ├── services/
-│   └── apiService.ts     # API service functions
+│   └── apiService.ts     # Complete API service with all CRUD operations
 ├── lib/
 │   └── axios.ts          # Axios configuration with environment variables
 ├── App.tsx               # Main app component with routing
 ├── main.tsx              # Application entry point with QueryClient setup
-├── index.css             # Global styles with Tailwind imports
+├── index.css             # Global styles with custom scrollbar
 └── App.css               # Component-specific styles
 ```
 
@@ -159,45 +158,54 @@ interface ShortLink {
 
 #### Button Component ([`Button.tsx`](src/components/Button.tsx))
 - Multiple variants: `primary`, `secondary`, `tertiary`
-- Loading states with spinner
+- Loading states with Lucide spinner
 - Disabled states with visual feedback
 - Built with Tailwind Variants for consistent styling
+- Icon support with proper spacing
 
 #### Input Component ([`Input.tsx`](src/components/Input.tsx))
-- Form validation states
-- Accessible labels
+- Form validation states with color coding
+- Focus states with brand color highlighting
+- Accessible labels with proper associations
 - Error handling with visual feedback
-- Consistent styling across the application
+- Center-aligned text for better UX
 
 #### IconButton Component ([`IconButton.tsx`](src/components/IconButton.tsx))
 - Icon-based actions (copy, delete)
 - Danger variant for destructive actions
 - Loading states for async operations
+- Gray background for better visibility
 
 ### Page Components
 
 #### Home Page ([`Home.tsx`](src/pages/Home.tsx))
-- URL input form with validation
-- Optional custom name input
-- Responsive layout (side-by-side on desktop, stacked on mobile)
-- Interactive links table with:
-  - Short URL display with click-to-visit functionality
-  - Original URL truncation for long URLs
-  - Visit count tracking
-  - Copy-to-clipboard functionality
-  - Delete confirmation with loading states
+- **Conditional Responsive Layout**: Side-by-side on desktop when links exist, centered when empty
+- **Form Section**: 
+  - Required URL input with validation
+  - Optional custom name input
+  - Save button with loading state
+- **Links Table Section** (only shown when links exist):
+  - Sticky header with CSV download button
+  - Scrollable container with custom scrollbar
+  - Click-to-visit functionality with redirect system
+  - Copy-to-clipboard with working frontend URLs
+  - Delete functionality with individual loading states
+  - Visit count display
+- **Empty State**: User-friendly message when no links exist
+- **CSV Export**: Downloads comprehensive report with all link data
 
 #### Redirect Page ([`Redirect.tsx`](src/pages/Redirect.tsx))
-- Automatic redirection to original URLs
-- Visit count increment before redirect
+- **1.5-second delay** before redirect for better UX
+- Automatic visit count increment before redirect
 - Loading state with responsive images
-- Error handling for invalid short codes
-- Protocol detection and correction
+- Error handling with navigation to NotFound
+- Protocol detection and correction (adds https:// if missing)
+- Graceful fallback if counter increment fails
 
 #### NotFound Page ([`NotFound.tsx`](src/pages/NotFound.tsx))
 - Responsive design with different images for mobile/desktop
-- Clean error messaging
-- Consistent branding
+- Clean error messaging with proper typography
+- Consistent branding and layout
 
 ## 🔄 State Management
 
@@ -207,7 +215,7 @@ The application uses TanStack Query for comprehensive server state management:
 - **Background Updates**: Automatic refetching of stale data
 - **Optimistic Updates**: UI updates before API confirmation
 - **Error Handling**: Built-in error states and retry logic
-- **Loading States**: Granular loading indicators
+- **Loading States**: Granular loading indicators per operation
 - **Query Invalidation**: Automatic data refresh after mutations
 
 ### Query Keys Structure
@@ -216,6 +224,11 @@ The application uses TanStack Query for comprehensive server state management:
 ['redirectLink', shortUrl] // Individual link for redirection
 ```
 
+### Mutation Handling
+- Individual loading states for delete operations
+- Success/error feedback with alerts
+- Automatic query invalidation for real-time updates
+
 ## 🎯 Environment Configuration
 
 The application requires two environment variables:
@@ -223,7 +236,10 @@ The application requires two environment variables:
 - `VITE_FRONTEND_URL` - The URL where the frontend is hosted (used for generating working links)
 - `VITE_BACKEND_URL` - The URL of the backend API server
 
-These are configured in the [axios configuration](src/lib/axios.ts) and used throughout the application.
+These are configured in the [axios configuration](src/lib/axios.ts) and used throughout the application for:
+- API requests to backend
+- Generating copyable short URLs
+- Redirect system functionality
 
 ## 📱 Responsive Design
 
@@ -238,17 +254,21 @@ Built with Tailwind CSS for a mobile-first approach:
 - **Components**: Responsive table layout, mobile-friendly forms, adaptive button sizes
 
 ### Responsive Features
-- Conditional layout switching (side-by-side vs stacked)
-- Table scrolling on mobile devices
-- Responsive images for different screen sizes
-- Touch-friendly interactive elements
+- **Conditional layout switching**: Side-by-side (desktop) vs stacked (mobile)
+- **Table scrolling**: Custom scrollbar on mobile devices
+- **Responsive images**: Different images for mobile/desktop screens
+- **Touch-friendly elements**: Proper sizing for mobile interaction
+- **Breakpoint-specific visibility**: Hide/show elements based on screen size
+
+### Custom Scrollbar
+Implemented in [`index.css`](src/index.css) with brand colors for consistent styling across the application.
 
 ## 🔧 Development Setup (Vite + React + TypeScript)
 
 This project uses a modern development setup with:
 
 ### TypeScript Configuration
-- **App Config** ([`tsconfig.app.json`](tsconfig.app.json)): React app configuration
+- **App Config** ([`tsconfig.app.json`](tsconfig.app.json)): React app configuration with JSX support
 - **Node Config** ([`tsconfig.node.json`](tsconfig.node.json)): Vite configuration
 - **Root Config** ([`tsconfig.json`](tsconfig.json)): Project references
 
@@ -278,16 +298,31 @@ The application is configured for easy deployment:
 ## 🔍 Key Features Explained
 
 ### Custom Short URLs
-Users can create personalized short URLs by providing a custom name, making links more memorable and brandable.
+Users can create personalized short URLs by providing a custom name (optional field), making links more memorable and brandable. The system uses either the custom name or auto-generated code.
 
 ### Visit Analytics
-Every click on a shortened link increments a visit counter, providing basic analytics for link performance.
+Every click on a shortened link increments a visit counter through the redirect system, providing accurate analytics for link performance.
 
 ### Smart Protocol Handling
-The application automatically adds `https://` protocol to URLs that don't specify one, ensuring proper redirection.
+The application automatically adds `https://` protocol to URLs that don't specify one, ensuring proper redirection functionality.
 
-### Optimistic UI Updates
-The interface immediately updates when users perform actions, providing instant feedback while API requests process in the background.
+### CSV Export Functionality
+Users can download a comprehensive CSV report containing:
+- Working short URLs (frontend URLs)
+- Original URLs
+- Visit counts
+- Creation dates (formatted for Brazil locale)
+
+### Redirect System
+- 1.5-second delay provides better user experience
+- Visit counting happens before redirect
+- Graceful error handling
+- Protocol correction for incomplete URLs
+
+### Responsive Layout Logic
+The home page uses conditional rendering:
+- **With links**: Side-by-side layout (form + table) on desktop, stacked on mobile
+- **Without links**: Centered form with empty state message below
 
 ## 📄 License
 
@@ -305,3 +340,5 @@ This is a personal learning project, but suggestions and improvements are welcom
 ## 🔗 Related Projects
 
 This frontend application works in conjunction with a backend API service. Make sure to set up the backend server and configure the appropriate environment variables for full functionality.
+
+The frontend generates working URLs in the format: `{VITE_FRONTEND_URL}/{custom_name || code}` which are used for copying and CSV export.
