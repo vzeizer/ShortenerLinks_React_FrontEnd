@@ -6,16 +6,15 @@ const buttonVariants = tv({
   base: 'py-2 px-4 rounded-md font-bold transition-all flex items-center justify-center gap-2',
   variants: {
     variant: {
-      primary: 'bg-brand-base text-white hover:bg-brand-dark', // Fixed to use brand-base
-      secondary: 'bg-brand-base/10 text-brand-base hover:bg-brand-base/20', // Fixed to use brand-base
-      tertiary: 'bg-transparent text-brand-base hover:bg-brand-base/10', // Fixed to use brand-base
+      primary: 'bg-brand-base text-white hover:bg-brand-dark',
+      secondary: 'bg-brand-base/10 text-brand-base hover:bg-brand-base/20 border border-brand-dark',
+      tertiary: 'bg-transparent text-brand-base hover:bg-brand-base/10',
     },
     disabled: {
       true: '',
     },
   },
   compoundVariants: [
-    // Regras para botões desabilitados
     {
       variant: 'primary',
       disabled: true,
