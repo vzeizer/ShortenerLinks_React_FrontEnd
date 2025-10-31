@@ -6,9 +6,8 @@ const iconButtonVariants = tv({
   base: 'p-2 rounded-md transition-colors flex items-center justify-center',
   variants: {
     variant: {
-      // ATUALIZADO: de text-gray-800 para text-gray-600
-      default: 'text-gray-600 hover:bg-gray-200', 
-      danger: 'text-danger hover:bg-danger/10',
+      default: 'text-gray-600 hover:bg-gray-200 bg-gray-200', // Added gray background
+      danger: 'text-danger hover:bg-danger/10 bg-gray-200', // Added gray background
     },
   },
   defaultVariants: {
