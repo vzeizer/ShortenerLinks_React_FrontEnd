@@ -117,7 +117,50 @@ export function Home() {
   const hasLinksToShow = links && links.length > 0
 
 
-  return (
+function downloadCSV() {
+  if (!links || links.length === 0) {
+    alert('Não há links para exportar.')
+    return
+  }
+
+  // Create CSV headers
+  const headers = ['Link Encurtado', 'URL Original', 'Visitas', 'Data de Criação']
+  
+  // Create CSV rows
+  const csvData = links.map(link => {
+    const displayName = link.custom_name || link.code
+    const workingUrl = `${import.meta.env.VITE_FRONTEND_URL}/${displayName}` // Use the same URL as copy action
+    const createdDate = new Date(link.created_at).toLocaleDateString('pt-BR')
+    
+    return [
+      workingUrl, // Changed from shortUrl to workingUrl
+      link.original_url,
+      link.access_count || 0,
+      createdDate
+    ]
+  })
+
+  // Combine headers and data
+  const csvContent = [headers, ...csvData]
+    .map(row => row.map(field => `"${field}"`).join(','))
+    .join('\n')
+
+  // Create and download the file
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  
+  if (link.download !== undefined) {
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `brev-ly-links-${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+}
+
+return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 text-gray-600 p-4 md:p-8">
       <div className="w-full max-w-7xl mx-auto">
         <header className="text-center my-10 md:my-16">
@@ -126,6 +169,7 @@ export function Home() {
             <span className="text-brand-base">brev.ly</span>
           </h1>
         </header>
+        
         {/* Main content - conditional layout */}
         <div className={hasLinksToShow ? "flex flex-col lg:flex-row gap-8" : "flex justify-center"}>
           {/* Form section */}
@@ -169,6 +213,23 @@ export function Home() {
           {hasLinksToShow && (
             <div className="lg:w-2/3 flex-1">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                {/* Add CSV Download Button */}
+                <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                  <h2 className="text-lg font-semibold text-gray-600">Meus Links</h2>
+                  <Button
+                    variant="secondary"
+                    onClick={downloadCSV}
+                    className="text-sm group"
+                  >
+                    <img 
+                      src="/download-simple.svg" 
+                      alt="Download" 
+                      className="w-4 h-4 opacity-50 group-hover:opacity-100 group-active:opacity-100 transition-opacity" 
+                    />
+                    Baixar CSV
+                  </Button>
+                </div>
+                
                 {/* Scrollable container with max height */}
                 <div className="max-h-96 overflow-y-auto custom-scrollbar">
                   <table className="min-w-full text-left">
